@@ -156,7 +156,7 @@
             
             // Clean the part number (remove spaces, dashes, make uppercase)
             const cleanPartNumber = partNumber.replace(/[\s-]/g, '').toUpperCase();
-            const partUrl = `https://www.detroitaxle.com/part/part/${encodeURIComponent(cleanPartNumber)}`;
+            const partUrl = `https://www.detroitaxle.com/${encodeURIComponent(cleanPartNumber)}`;
             
             resultDiv.innerHTML = `Opening: <a href="${partUrl}" target="_blank">${partUrl}</a>`;
             
