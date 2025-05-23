@@ -1,1 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detroit Axle Part Lookup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .input-container {
+            margin: 20px 0;
+        }
+        #partNumber {
+            padding: 12px;
+            width: 300px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #e31937;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #c0102a;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Detroit Axle Part Lookup</h1>
+    <p>Enter a part number to view on DetroitAxle.com:</p>
+    
+    <div class="input-container">
+        <input type="text" id="partNumber" placeholder="Enter part number (e.g. DA1234)" autofocus>
+        <button onclick="openPartLink()">View Part</button>
+    </div>
+    
+    <div id="result"></div>
 
+    <script>
+        function openPartLink() {
+            // Get the input element
+            const partInput = document.getElementById('partNumber');
+            // Get the trimmed value
+            const partNumber = partInput.value.trim();
+            
+            if (!partNumber) {
+                document.getElementById('result').innerHTML = 'Please enter a part number';
+                partInput.focus(); // Focus back on the input field
+                return;
+            }
+            
+            // Construct the URL
+            const partUrl = `https://www.detroitaxle.com/part/part/${encodeURIComponent(partNumber)}`;
+            
+            // Show the URL to the user
+            document.getElementById('result').innerHTML = 
+                `Opening: <a href="${partUrl}" target="_blank">${partUrl}</a>`;
+            
+            // Open in new tab
+            window.open(partUrl, '_blank');
+            
+            // Clear the input for next use
+            partInput.value = '';
+            partInput.focus();
+        }
+        
+        // Handle Enter key press
+        document.getElementById('partNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                openPartLink();
+            }
+        });
+    </script>
+</body>
+</html>
