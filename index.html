@@ -10,14 +10,16 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <style>
         :root {
-            --primary-color: #3a86ff;
-            --primary-dark: #2667cc;
+            --primary-color: #ff5e14;  /* Reddish orange */
+            --primary-dark: #e04a00;   /* Darker reddish orange */
+            --primary-light: #ff8a4d;  /* Lighter reddish orange */
             --bg-color: #121212;
             --card-bg: #1e1e1e;
             --text-color: #e0e0e0;
             --text-secondary: #b0b0b0;
             --border-color: #333;
             --success-color: #4caf50;
+            --selected-glow: 0 0 15px rgba(255, 94, 20, 0.7);
         }
         
         body {
@@ -63,16 +65,48 @@
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         
         .option-btn:hover {
-            background-color: var(--primary-dark);
+            background-color: var(--primary-light);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 94, 20, 0.4);
         }
         
         .option-btn.active {
             background-color: var(--primary-dark);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--selected-glow);
+            transform: translateY(-2px);
+            border: 2px solid white;
+        }
+        
+        .option-btn.active::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 2px solid white;
+            border-radius: 5px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0.7;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.3;
+                transform: scale(1.02);
+            }
+            100% {
+                opacity: 0.7;
+                transform: scale(1);
+            }
         }
         
         .state-grid-container {
@@ -112,6 +146,7 @@
             background-color: #2a2a2a;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary-color);
         }
         
         .state.abbr {
@@ -130,6 +165,7 @@
             padding: 20px;
             transform: scale(1);
             animation: expand 0.3s ease forwards;
+            border: 2px solid var(--primary-color);
         }
         
         @keyframes expand {
@@ -178,6 +214,11 @@
             font-size: 20px;
             cursor: pointer;
             color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+        
+        .close-btn:hover {
+            color: var(--primary-color);
         }
         
         .overlay {
