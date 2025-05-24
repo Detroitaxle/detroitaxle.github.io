@@ -1,209 +1,384 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Detroit Axle Part Lookup</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon links -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#e31937">
-    <link rel="shortcut icon" href="/favicon.ico">
-    <meta name="msapplication-TileColor" content="#e31937">
-    <meta name="theme-color" content="#e31937">
-    
+    <title>Detroit Axle Delivery Times</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <style>
-        :root {
-            --primary: #e31937;
-            --primary-dark: #c0102a;
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --text: #f0f0f0;
-            --text-muted: #aaaaaa;
-            --border: #333333;
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
         }
         
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            max-width: 600px;
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Rest of your existing CSS remains the same */
-        /* ... */
-
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Detroit Axle Part Lookup</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        :root {
-            --primary: #e31937;
-            --primary-dark: #c0102a;
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --text: #f0f0f0;
-            --text-muted: #aaaaaa;
-            --border: #333333;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .card {
-            background-color: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        h1 {
-            color: var(--primary);
-            margin-top: 0;
-            font-size: 1.8rem;
             text-align: center;
-        }
-        
-        .input-container {
-            margin: 1.5rem 0;
-        }
-        
-        #partNumber {
-            padding: 14px;
-            width: 100%;
-            font-size: 1rem;
-            background-color: #2a2a2a;
-            color: var(--text);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            transition: border-color 0.3s;
-            box-sizing: border-box;
-        }
-        
-        #partNumber:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        
-        button {
-            padding: 14px;
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        button:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        #result {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background-color: #2a2a2a;
-            word-break: break-all;
-        }
-        
-        #result a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        #result a:hover {
-            text-decoration: underline;
         }
         
         .logo {
-            text-align: center;
-            margin-bottom: 1.5rem;
+            margin: 20px 0;
+            max-width: 300px;
         }
         
-        .logo span {
+        .option-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .option-btn {
+            padding: 15px 30px;
+            font-size: 18px;
             font-weight: bold;
-            color: var(--primary);
-            font-size: 1.2em;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option-btn:hover {
+            background-color: #003d82;
+            transform: translateY(-2px);
+        }
+        
+        .option-btn.active {
+            background-color: #003d82;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .state {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .state:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        
+        .state.abbr {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .state.expanded {
+            position: absolute;
+            z-index: 100;
+            height: auto;
+            width: 300px;
+            background-color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            transform: scale(1);
+            animation: expand 0.3s ease forwards;
+        }
+        
+        @keyframes expand {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .state-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0056b3;
+        }
+        
+        .state-time {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .state-delivery {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            display: none;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 1200px) {
+            .state-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .state-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .state-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .option-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="logo">
-            <span>DETROIT AXLE</span> PART LOOKUP
+    <div class="container">
+        <img src="https://detroitaxle.com/wp-content/uploads/2021/12/da-logo.png" alt="Detroit Axle Logo" class="logo">
+        
+        <h1>Delivery Time Calculator</h1>
+        
+        <div class="option-buttons">
+            <button class="option-btn" id="daxdt">DAXDT (Detroit, MI)</button>
+            <button class="option-btn" id="daxjz">DAXJZ (Texas)</button>
         </div>
         
-        <h1>Part Number Search</h1>
-        
-        <div class="input-container">
-            <input type="text" id="partNumber" placeholder="Enter part number (e.g. DA1234)" autofocus>
+        <div id="state-grid-container">
+            <div class="state-grid" id="stateGrid"></div>
         </div>
-        
-        <button onclick="openPartLink()">SEARCH PARTS</button>
-        
-        <div id="result"></div>
     </div>
-
+    
+    <div class="overlay" id="overlay"></div>
+    
     <script>
-        function openPartLink() {
-            const partInput = document.getElementById('partNumber');
-            const partNumber = partInput.value.trim();
-            const resultDiv = document.getElementById('result');
+        // State data with delivery times from Detroit (DAXDT) and Texas (DAXJZ)
+        const stateData = {
+            "AL": { name: "Alabama", daxdt: "2-3 days", daxjz: "2 days" },
+            "AK": { name: "Alaska", daxdt: "7-10 days", daxjz: "8-10 days" },
+            "AZ": { name: "Arizona", daxdt: "4-5 days", daxjz: "2-3 days" },
+            "AR": { name: "Arkansas", daxdt: "3-4 days", daxjz: "1-2 days" },
+            "CA": { name: "California", daxdt: "5-6 days", daxjz: "3-4 days" },
+            "CO": { name: "Colorado", daxdt: "4-5 days", daxjz: "2-3 days" },
+            "CT": { name: "Connecticut", daxdt: "2-3 days", daxjz: "4-5 days" },
+            "DE": { name: "Delaware", daxdt: "2 days", daxjz: "4-5 days" },
+            "FL": { name: "Florida", daxdt: "3-4 days", daxjz: "3-4 days" },
+            "GA": { name: "Georgia", daxdt: "2-3 days", daxjz: "2-3 days" },
+            "HI": { name: "Hawaii", daxdt: "8-12 days", daxjz: "10-14 days" },
+            "ID": { name: "Idaho", daxdt: "5-6 days", daxjz: "4-5 days" },
+            "IL": { name: "Illinois", daxdt: "1-2 days", daxjz: "2-3 days" },
+            "IN": { name: "Indiana", daxdt: "1 day", daxjz: "2-3 days" },
+            "IA": { name: "Iowa", daxdt: "2-3 days", daxjz: "2-3 days" },
+            "KS": { name: "Kansas", daxdt: "3-4 days", daxjz: "1-2 days" },
+            "KY": { name: "Kentucky", daxdt: "2 days", daxjz: "2 days" },
+            "LA": { name: "Louisiana", daxdt: "3-4 days", daxjz: "1-2 days" },
+            "ME": { name: "Maine", daxdt: "3-4 days", daxjz: "5-6 days" },
+            "MD": { name: "Maryland", daxdt: "2 days", daxjz: "4-5 days" },
+            "MA": { name: "Massachusetts", daxdt: "2-3 days", daxjz: "4-5 days" },
+            "MI": { name: "Michigan", daxdt: "Same day", daxjz: "3-4 days" },
+            "MN": { name: "Minnesota", daxdt: "2-3 days", daxjz: "3-4 days" },
+            "MS": { name: "Mississippi", daxdt: "3-4 days", daxjz: "2 days" },
+            "MO": { name: "Missouri", daxdt: "2-3 days", daxjz: "1-2 days" },
+            "MT": { name: "Montana", daxdt: "5-6 days", daxjz: "4-5 days" },
+            "NE": { name: "Nebraska", daxdt: "3-4 days", daxjz: "2-3 days" },
+            "NV": { name: "Nevada", daxdt: "5-6 days", daxjz: "3-4 days" },
+            "NH": { name: "New Hampshire", daxdt: "3 days", daxjz: "5-6 days" },
+            "NJ": { name: "New Jersey", daxdt: "2 days", daxjz: "4-5 days" },
+            "NM": { name: "New Mexico", daxdt: "4-5 days", daxjz: "2 days" },
+            "NY": { name: "New York", daxdt: "2-3 days", daxjz: "4-5 days" },
+            "NC": { name: "North Carolina", daxdt: "2-3 days", daxjz: "3-4 days" },
+            "ND": { name: "North Dakota", daxdt: "4-5 days", daxjz: "4-5 days" },
+            "OH": { name: "Ohio", daxdt: "1 day", daxjz: "3-4 days" },
+            "OK": { name: "Oklahoma", daxdt: "3-4 days", daxjz: "1-2 days" },
+            "OR": { name: "Oregon", daxdt: "6-7 days", daxjz: "5-6 days" },
+            "PA": { name: "Pennsylvania", daxdt: "2 days", daxjz: "4-5 days" },
+            "RI": { name: "Rhode Island", daxdt: "3 days", daxjz: "5-6 days" },
+            "SC": { name: "South Carolina", daxdt: "3 days", daxjz: "3-4 days" },
+            "SD": { name: "South Dakota", daxdt: "4-5 days", daxjz: "3-4 days" },
+            "TN": { name: "Tennessee", daxdt: "2-3 days", daxjz: "2 days" },
+            "TX": { name: "Texas", daxdt: "3-4 days", daxjz: "Same day" },
+            "UT": { name: "Utah", daxdt: "5-6 days", daxjz: "3-4 days" },
+            "VT": { name: "Vermont", daxdt: "3-4 days", daxjz: "5-6 days" },
+            "VA": { name: "Virginia", daxdt: "2-3 days", daxjz: "4-5 days" },
+            "WA": { name: "Washington", daxdt: "6-7 days", daxjz: "5-6 days" },
+            "WV": { name: "West Virginia", daxdt: "2-3 days", daxjz: "4-5 days" },
+            "WI": { name: "Wisconsin", daxdt: "2 days", daxjz: "3-4 days" },
+            "WY": { name: "Wyoming", daxdt: "5-6 days", daxjz: "4-5 days" }
+        };
+
+        // Current selected option
+        let currentOption = null;
+        
+        // DOM elements
+        const daxdtBtn = document.getElementById('daxdt');
+        const daxjzBtn = document.getElementById('daxjz');
+        const stateGrid = document.getElementById('stateGrid');
+        const overlay = document.getElementById('overlay');
+        
+        // Initialize the state grid
+        function initStateGrid() {
+            stateGrid.innerHTML = '';
             
-            if (!partNumber) {
-                resultDiv.innerHTML = '<span style="color: #ff6b6b">Please enter a part number</span>';
-                partInput.focus();
-                return;
+            for (const stateAbbr in stateData) {
+                const state = document.createElement('div');
+                state.className = 'state';
+                state.innerHTML = `<div class="abbr">${stateAbbr}</div>`;
+                state.dataset.state = stateAbbr;
+                
+                state.addEventListener('click', () => showStateDetails(stateAbbr));
+                
+                stateGrid.appendChild(state);
             }
-            
-            // Clean the part number (remove spaces, dashes, make uppercase)
-            const cleanPartNumber = partNumber.replace(/[\s-]/g, '').toUpperCase();
-            const partUrl = `https://www.detroitaxle.com/${encodeURIComponent(cleanPartNumber)}`;
-            
-            resultDiv.innerHTML = `Opening: <a href="${partUrl}" target="_blank">${partUrl}</a>`;
-            
-            window.open(partUrl, '_blank');
-            
-            // Reset for next search
-            partInput.value = '';
-            partInput.focus();
         }
         
-        // Handle Enter key press
-        document.getElementById('partNumber').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                openPartLink();
+        // Show expanded state details
+        function showStateDetails(stateAbbr) {
+            if (!currentOption) return;
+            
+            const stateInfo = stateData[stateAbbr];
+            const localTime = getLocalTime(stateAbbr);
+            
+            // Create expanded state element
+            const expandedState = document.createElement('div');
+            expandedState.className = 'state expanded';
+            expandedState.innerHTML = `
+                <button class="close-btn">&times;</button>
+                <div class="state-name">${stateInfo.name}</div>
+                <div class="state-time">Local Time: ${localTime}</div>
+                <div class="state-delivery">
+                    Delivery Time: ${currentOption === 'daxdt' ? stateInfo.daxdt : stateInfo.daxjz}
+                </div>
+                <div class="state-origin">
+                    Shipping from: ${currentOption === 'daxdt' ? 'Detroit, MI' : 'Texas'}
+                </div>
+            `;
+            
+            // Position the expanded state near the original state
+            const originalState = document.querySelector(`.state[data-state="${stateAbbr}"]`);
+            const rect = originalState.getBoundingClientRect();
+            expandedState.style.left = `${rect.left + window.scrollX}px`;
+            expandedState.style.top = `${rect.top + window.scrollY}px`;
+            
+            document.body.appendChild(expandedState);
+            overlay.style.display = 'block';
+            
+            // Center the expanded state
+            setTimeout(() => {
+                expandedState.style.left = `${window.innerWidth / 2 - expandedState.offsetWidth / 2}px`;
+                expandedState.style.top = `${window.innerHeight / 2 - expandedState.offsetHeight / 2}px`;
+            }, 10);
+            
+            // Close button event
+            expandedState.querySelector('.close-btn').addEventListener('click', () => {
+                expandedState.remove();
+                overlay.style.display = 'none';
+            });
+            
+            // Close when clicking overlay
+            overlay.addEventListener('click', () => {
+                expandedState.remove();
+                overlay.style.display = 'none';
+            });
+        }
+        
+        // Get local time for a state (simplified - in a real app you'd use timezone data)
+        function getLocalTime(stateAbbr) {
+            // This is a simplified version. In a real app, you'd map states to timezones
+            const now = new Date();
+            return now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                timeZone: getTimeZoneForState(stateAbbr)
+            });
+        }
+        
+        // Simplified timezone mapping (not comprehensive)
+        function getTimeZoneForState(stateAbbr) {
+            const eastern = ['CT', 'DE', 'FL', 'GA', 'IN', 'KY', 'ME', 'MD', 'MA', 'MI', 'NH', 'NJ', 'NY', 'NC', 'OH', 'PA', 'RI', 'SC', 'TN', 'VT', 'VA', 'WV'];
+            const central = ['AL', 'AR', 'IL', 'IA', 'KS', 'LA', 'MN', 'MS', 'MO', 'NE', 'ND', 'OK', 'SD', 'TX', 'WI'];
+            const mountain = ['AZ', 'CO', 'ID', 'MT', 'NM', 'UT', 'WY'];
+            const pacific = ['CA', 'NV', 'OR', 'WA'];
+            
+            if (eastern.includes(stateAbbr)) return 'America/New_York';
+            if (central.includes(stateAbbr)) return 'America/Chicago';
+            if (mountain.includes(stateAbbr)) return 'America/Denver';
+            if (pacific.includes(stateAbbr)) return 'America/Los_Angeles';
+            if (stateAbbr === 'AK') return 'America/Anchorage';
+            if (stateAbbr === 'HI') return 'Pacific/Honolulu';
+            
+            return 'America/New_York'; // default
+        }
+        
+        // Set active option
+        function setActiveOption(option) {
+            currentOption = option;
+            
+            daxdtBtn.classList.remove('active');
+            daxjzBtn.classList.remove('active');
+            
+            if (option === 'daxdt') {
+                daxdtBtn.classList.add('active');
+            } else if (option === 'daxjz') {
+                daxjzBtn.classList.add('active');
             }
-        });
+        }
+        
+        // Event listeners
+        daxdtBtn.addEventListener('click', () => setActiveOption('daxdt'));
+        daxjzBtn.addEventListener('click', () => setActiveOption('daxjz'));
+        
+        // Initialize
+        initStateGrid();
     </script>
 </body>
 </html>
