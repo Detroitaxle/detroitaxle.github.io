@@ -7,6 +7,7 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons.min.css">
     <style>
         :root {
             --dark-bg: #121212;
@@ -123,7 +124,7 @@
 
         .states-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 15px;
             width: 100%;
             max-width: 1000px;
@@ -161,11 +162,18 @@
             z-index: 10;
             background-color: #2a2a2a;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transform: scale(1.1);
+            transform: scale(1.05);
+            margin: 15px; /* Increased margin for better spacing */
         }
 
         .state-card.active .state-info {
             display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .state-info {
@@ -179,6 +187,13 @@
             color: var(--accent);
             font-weight: bold;
             margin-top: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
         }
 
         .back-btn {
@@ -206,6 +221,87 @@
             background-color: var(--accent-light);
         }
 
+        .weather-info {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(30, 30, 30, 0.95);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            z-index: 50;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+        }
+
+        .weather-info.visible {
+            transform: translateY(0);
+            opacity: 1;
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.3s ease;
+        }
+
+        .weather-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .weather-icon {
+            font-size: 48px;
+            color: var(--accent);
+            animation: weatherIconFadeIn 0.6s ease-out;
+        }
+
+        @keyframes weatherIconFadeIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .weather-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            animation: weatherDetailsFadeIn 0.6s ease-out;
+        }
+
+        @keyframes weatherDetailsFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .weather-location {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .weather-temp {
+            font-size: 24px;
+        }
+
+        .weather-desc {
+            color: var(--text-secondary);
+        }
+
+        .weather-extras {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .weather-extra {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
         @media (max-width: 768px) {
             .options {
                 flex-direction: column;
@@ -214,6 +310,21 @@
             
             .state-card {
                 padding: 10px;
+            }
+
+            .state-card.active {
+                grid-column: span 3;
+                margin: 10px;
+            }
+
+            .weather-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .weather-extras {
+                justify-content: center;
             }
         }
     </style>
@@ -242,6 +353,31 @@
         <div class="states-grid" id="statesGrid"></div>
     </div>
 
+    <div class="weather-info" id="weatherInfo">
+        <div class="weather-content">
+            <i class="weather-icon" id="weatherIcon"></i>
+            <div class="weather-details">
+                <div class="weather-location" id="weatherLocation"></div>
+                <div class="weather-temp" id="weatherTemp"></div>
+                <div class="weather-desc" id="weatherDesc"></div>
+                <div class="weather-extras">
+                    <div class="weather-extra">
+                        <i class="wi wi-humidity"></i>
+                        <span id="weatherHumidity"></span>
+                    </div>
+                    <div class="weather-extra">
+                        <i class="wi wi-strong-wind"></i>
+                        <span id="weatherWind"></span>
+                    </div>
+                    <div class="weather-extra">
+                        <i class="wi wi-barometer"></i>
+                        <span id="weatherPressure"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // State data with time zones and abbreviations
         const stateData = [
@@ -253,41 +389,41 @@
             {name: "Colorado", abbr: "CO", timezone: "America/Denver"},
             {name: "Connecticut", abbr: "CT", timezone: "America/New_York"},
             {name: "Delaware", abbr: "DE", timezone: "America/New_York"},
-            {name: "Florida", abbr: "FL", timezone: "America/New_York"}, // East Florida
+            {name: "Florida", abbr: "FL", timezone: "America/New_York"},
             {name: "Georgia", abbr: "GA", timezone: "America/New_York"},
             {name: "Hawaii", abbr: "HI", timezone: "Pacific/Honolulu"},
             {name: "Idaho", abbr: "ID", timezone: "America/Boise"},
             {name: "Illinois", abbr: "IL", timezone: "America/Chicago"},
-            {name: "Indiana", abbr: "IN", timezone: "America/Indiana/Indianapolis"}, // Most of Indiana
+            {name: "Indiana", abbr: "IN", timezone: "America/Indiana/Indianapolis"},
             {name: "Iowa", abbr: "IA", timezone: "America/Chicago"},
-            {name: "Kansas", abbr: "KS", timezone: "America/Chicago"}, // Most of Kansas
-            {name: "Kentucky", abbr: "KY", timezone: "America/New_York"}, // Eastern Kentucky
+            {name: "Kansas", abbr: "KS", timezone: "America/Chicago"},
+            {name: "Kentucky", abbr: "KY", timezone: "America/New_York"},
             {name: "Louisiana", abbr: "LA", timezone: "America/Chicago"},
             {name: "Maine", abbr: "ME", timezone: "America/New_York"},
             {name: "Maryland", abbr: "MD", timezone: "America/New_York"},
             {name: "Massachusetts", abbr: "MA", timezone: "America/New_York"},
-            {name: "Michigan", abbr: "MI", timezone: "America/Detroit"}, // Most of Michigan
+            {name: "Michigan", abbr: "MI", timezone: "America/Detroit"},
             {name: "Minnesota", abbr: "MN", timezone: "America/Chicago"},
             {name: "Mississippi", abbr: "MS", timezone: "America/Chicago"},
             {name: "Missouri", abbr: "MO", timezone: "America/Chicago"},
             {name: "Montana", abbr: "MT", timezone: "America/Denver"},
-            {name: "Nebraska", abbr: "NE", timezone: "America/Chicago"}, // Most of Nebraska
+            {name: "Nebraska", abbr: "NE", timezone: "America/Chicago"},
             {name: "Nevada", abbr: "NV", timezone: "America/Los_Angeles"},
             {name: "New Hampshire", abbr: "NH", timezone: "America/New_York"},
             {name: "New Jersey", abbr: "NJ", timezone: "America/New_York"},
             {name: "New Mexico", abbr: "NM", timezone: "America/Denver"},
             {name: "New York", abbr: "NY", timezone: "America/New_York"},
             {name: "North Carolina", abbr: "NC", timezone: "America/New_York"},
-            {name: "North Dakota", abbr: "ND", timezone: "America/Chicago"}, // Most of North Dakota
+            {name: "North Dakota", abbr: "ND", timezone: "America/Chicago"},
             {name: "Ohio", abbr: "OH", timezone: "America/New_York"},
             {name: "Oklahoma", abbr: "OK", timezone: "America/Chicago"},
-            {name: "Oregon", abbr: "OR", timezone: "America/Los_Angeles"}, // Most of Oregon
+            {name: "Oregon", abbr: "OR", timezone: "America/Los_Angeles"},
             {name: "Pennsylvania", abbr: "PA", timezone: "America/New_York"},
             {name: "Rhode Island", abbr: "RI", timezone: "America/New_York"},
             {name: "South Carolina", abbr: "SC", timezone: "America/New_York"},
-            {name: "South Dakota", abbr: "SD", timezone: "America/Chicago"}, // Most of South Dakota
-            {name: "Tennessee", abbr: "TN", timezone: "America/Chicago"}, // Most of Tennessee
-            {name: "Texas", abbr: "TX", timezone: "America/Chicago"}, // Most of Texas
+            {name: "South Dakota", abbr: "SD", timezone: "America/Chicago"},
+            {name: "Tennessee", abbr: "TN", timezone: "America/Chicago"},
+            {name: "Texas", abbr: "TX", timezone: "America/Chicago"},
             {name: "Utah", abbr: "UT", timezone: "America/Denver"},
             {name: "Vermont", abbr: "VT", timezone: "America/New_York"},
             {name: "Virginia", abbr: "VA", timezone: "America/New_York"},
@@ -297,7 +433,61 @@
             {name: "Wyoming", abbr: "WY", timezone: "America/Denver"}
         ];
 
-        // Mock FedEx delivery estimates (in reality you would use the API)
+        // Mock weather data (in a real app, you'd use a weather API)
+        const weatherData = {
+            "AL": {temp: 72, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "65%", wind: "8 mph", pressure: "1012 hPa"},
+            "AK": {temp: 45, desc: "Light Rain", icon: "wi-rain", humidity: "80%", wind: "5 mph", pressure: "1008 hPa"},
+            "AZ": {temp: 88, desc: "Sunny", icon: "wi-day-sunny", humidity: "25%", wind: "6 mph", pressure: "1010 hPa"},
+            "AR": {temp: 68, desc: "Cloudy", icon: "wi-cloudy", humidity: "70%", wind: "7 mph", pressure: "1013 hPa"},
+            "CA": {temp: 75, desc: "Sunny", icon: "wi-day-sunny", humidity: "50%", wind: "5 mph", pressure: "1015 hPa"},
+            "CO": {temp: 65, desc: "Partly Cloudy", icon: "wi-day-cloudy-high", humidity: "45%", wind: "10 mph", pressure: "1011 hPa"},
+            "CT": {temp: 62, desc: "Mostly Sunny", icon: "wi-day-sunny-overcast", humidity: "60%", wind: "6 mph", pressure: "1014 hPa"},
+            "DE": {temp: 64, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "65%", wind: "7 mph", pressure: "1013 hPa"},
+            "FL": {temp: 82, desc: "Scattered Thunderstorms", icon: "wi-thunderstorm", humidity: "75%", wind: "12 mph", pressure: "1010 hPa"},
+            "GA": {temp: 74, desc: "Mostly Sunny", icon: "wi-day-sunny-overcast", humidity: "68%", wind: "8 mph", pressure: "1012 hPa"},
+            "HI": {temp: 80, desc: "Isolated Showers", icon: "wi-showers", humidity: "70%", wind: "15 mph", pressure: "1016 hPa"},
+            "ID": {temp: 58, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "55%", wind: "7 mph", pressure: "1012 hPa"},
+            "IL": {temp: 63, desc: "Cloudy", icon: "wi-cloudy", humidity: "72%", wind: "9 mph", pressure: "1011 hPa"},
+            "IN": {temp: 61, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "68%", wind: "8 mph", pressure: "1013 hPa"},
+            "IA": {temp: 59, desc: "Mostly Cloudy", icon: "wi-cloudy", humidity: "70%", wind: "10 mph", pressure: "1012 hPa"},
+            "KS": {temp: 67, desc: "Sunny", icon: "wi-day-sunny", humidity: "60%", wind: "12 mph", pressure: "1010 hPa"},
+            "KY": {temp: 64, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "65%", wind: "7 mph", pressure: "1013 hPa"},
+            "LA": {temp: 76, desc: "Humid", icon: "wi-humidity", humidity: "80%", wind: "6 mph", pressure: "1012 hPa"},
+            "ME": {temp: 55, desc: "Mostly Sunny", icon: "wi-day-sunny-overcast", humidity: "60%", wind: "8 mph", pressure: "1014 hPa"},
+            "MD": {temp: 66, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "65%", wind: "7 mph", pressure: "1013 hPa"},
+            "MA": {temp: 60, desc: "Mostly Sunny", icon: "wi-day-sunny-overcast", humidity: "62%", wind: "8 mph", pressure: "1014 hPa"},
+            "MI": {temp: 58, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "65%", wind: "9 mph", pressure: "1013 hPa"},
+            "MN": {temp: 56, desc: "Mostly Cloudy", icon: "wi-cloudy", humidity: "68%", wind: "10 mph", pressure: "1012 hPa"},
+            "MS": {temp: 74, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "72%", wind: "7 mph", pressure: "1012 hPa"},
+            "MO": {temp: 65, desc: "Mostly Sunny", icon: "wi-day-sunny-overcast", humidity: "67%", wind: "8 mph", pressure: "1013 hPa"},
+            "MT": {temp: 52, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "55%", wind: "11 mph", pressure: "1011 hPa"},
+            "NE": {temp: 62, desc: "Sunny", icon: "wi-day-sunny", humidity: "58%", wind: "12 mph", pressure: "1010 hPa"},
+            "NV": {temp: 78, desc: "Sunny", icon: "wi-day-sunny", humidity: "30%", wind: "6 mph", pressure: "1012 hPa"},
+            "NH": {temp: 57, desc: "Mostly Sunny", icon: "wi-day-sunny-overcast", humidity: "60%", wind: "7 mph", pressure: "1014 hPa"},
+            "NJ": {temp: 63, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "65%", wind: "8 mph", pressure: "1013 hPa"},
+            "NM": {temp: 72, desc: "Sunny", icon: "wi-day-sunny", humidity: "35%", wind: "9 mph", pressure: "1011 hPa"},
+            "NY": {temp: 61, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "63%", wind: "8 mph", pressure: "1014 hPa"},
+            "NC": {temp: 70, desc: "Mostly Sunny", icon: "wi-day-sunny-overcast", humidity: "67%", wind: "7 mph", pressure: "1013 hPa"},
+            "ND": {temp: 50, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "60%", wind: "13 mph", pressure: "1010 hPa"},
+            "OH": {temp: 62, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "65%", wind: "8 mph", pressure: "1013 hPa"},
+            "OK": {temp: 70, desc: "Sunny", icon: "wi-day-sunny", humidity: "62%", wind: "11 mph", pressure: "1011 hPa"},
+            "OR": {temp: 60, desc: "Light Rain", icon: "wi-rain", humidity: "75%", wind: "8 mph", pressure: "1013 hPa"},
+            "PA": {temp: 61, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "64%", wind: "7 mph", pressure: "1014 hPa"},
+            "RI": {temp: 59, desc: "Mostly Sunny", icon: "wi-day-sunny-overcast", humidity: "63%", wind: "9 mph", pressure: "1014 hPa"},
+            "SC": {temp: 72, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "68%", wind: "7 mph", pressure: "1013 hPa"},
+            "SD": {temp: 58, desc: "Sunny", icon: "wi-day-sunny", humidity: "58%", wind: "14 mph", pressure: "1010 hPa"},
+            "TN": {temp: 68, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "67%", wind: "7 mph", pressure: "1013 hPa"},
+            "TX": {temp: 82, desc: "Sunny", icon: "wi-day-sunny", humidity: "55%", wind: "10 mph", pressure: "1011 hPa"},
+            "UT": {temp: 68, desc: "Sunny", icon: "wi-day-sunny", humidity: "40%", wind: "8 mph", pressure: "1012 hPa"},
+            "VT": {temp: 56, desc: "Mostly Sunny", icon: "wi-day-sunny-overcast", humidity: "62%", wind: "7 mph", pressure: "1014 hPa"},
+            "VA": {temp: 68, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "66%", wind: "7 mph", pressure: "1013 hPa"},
+            "WA": {temp: 58, desc: "Light Rain", icon: "wi-rain", humidity: "78%", wind: "7 mph", pressure: "1014 hPa"},
+            "WV": {temp: 63, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "65%", wind: "7 mph", pressure: "1013 hPa"},
+            "WI": {temp: 57, desc: "Mostly Cloudy", icon: "wi-cloudy", humidity: "69%", wind: "9 mph", pressure: "1012 hPa"},
+            "WY": {temp: 54, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "50%", wind: "12 mph", pressure: "1011 hPa"}
+        };
+
+        // Mock FedEx delivery estimates
         const fedExEstimatesFromDetroit = {
             "AL": "2-3 business days",
             "AK": "5-7 business days",
@@ -410,7 +600,9 @@
         const statesGrid = document.getElementById('statesGrid');
         const backBtn = document.querySelector('.back-btn');
         const container = document.querySelector('.container');
+        const weatherInfo = document.getElementById('weatherInfo');
         let selectedWarehouse = null;
+        let selectedState = null;
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
@@ -459,6 +651,10 @@
                     
                     // Add active class to clicked card
                     stateCard.classList.add('active');
+                    selectedState = state.abbr;
+                    
+                    // Show weather info
+                    showWeatherInfo(state.abbr);
                 });
                 
                 statesGrid.appendChild(stateCard);
@@ -470,7 +666,7 @@
             }, 300);
             
             // Adjust container padding for grid view
-            container.style.padding = '40px 20px';
+            container.style.padding = '40px 20px 80px';
         }
 
         // Hide states grid and show warehouse options
@@ -480,6 +676,9 @@
             
             // Hide back button
             backBtn.classList.remove('visible');
+            
+            // Hide weather info
+            weatherInfo.classList.remove('visible');
             
             // Show title and options with animation
             setTimeout(() => {
@@ -492,42 +691,28 @@
             container.style.padding = '20px';
         }
 
-        // Get local time for a timezone
-        function getLocalTime(timezone) {
-            const options = {
-                timeZone: timezone,
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
+        // Show weather information for selected state
+        function showWeatherInfo(stateAbbr) {
+            const weather = weatherData[stateAbbr] || {
+                temp: 65,
+                desc: "Partly Cloudy",
+                icon: "wi-day-cloudy",
+                humidity: "65%",
+                wind: "8 mph",
+                pressure: "1013 hPa"
             };
-            return new Date().toLocaleTimeString('en-US', options);
+            
+            // Update weather elements
+            document.getElementById('weatherIcon').className = `weather-icon ${weather.icon}`;
+            document.getElementById('weatherLocation').textContent = stateData.find(s => s.abbr === stateAbbr).name;
+            document.getElementById('weatherTemp').textContent = `${weather.temp}°F`;
+            document.getElementById('weatherDesc').textContent = weather.desc;
+            document.getElementById('weatherHumidity').textContent = weather.humidity;
+            document.getElementById('weatherWind').textContent = weather.wind;
+            document.getElementById('weatherPressure').textContent = weather.pressure;
+            
+            // Show weather info with animation
+            weatherInfo.classList.add('visible');
         }
 
-        // Get FedEx estimate (mock function - in reality you would call the API)
-        function getFedExEstimate(warehouse, stateAbbr) {
-            if (warehouse === 'DAXDT') {
-                return fedExEstimatesFromDetroit[stateAbbr] || '3-5 business days';
-            } else if (warehouse === 'DAXJZ') {
-                return fedExEstimatesFromTexas[stateAbbr] || '3-5 business days';
-            }
-            return '3-5 business days';
-        }
-
-        // Update times every minute
-        setInterval(() => {
-            if (selectedWarehouse) {
-                document.querySelectorAll('.state-card').forEach(card => {
-                    const stateAbbr = card.querySelector('h3').textContent;
-                    const state = stateData.find(s => s.abbr === stateAbbr);
-                    if (state) {
-                        const timeElement = card.querySelector('.local-time');
-                        if (timeElement) {
-                            timeElement.textContent = `Local Time: ${getLocalTime(state.timezone)}`;
-                        }
-                    }
-                });
-            }
-        }, 60000);
-    </script>
-</body>
-</html>
+       
