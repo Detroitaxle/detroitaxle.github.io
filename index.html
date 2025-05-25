@@ -286,15 +286,13 @@
 </head>
 <body>
     <div class="container">
-       .logo-container, .logo {
-    width: 100%;
-    overflow: visible;
-}
+        <div class="logo-container">
+            <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50">
                 <text x="10" y="35" font-family="Arial" font-size="30" fill="white">DETROIT AXLE</text>
             </svg>
         </div>
         
-        <h1>Delivery Time</h1>
+        <h1>Delivery Times</h1>
         
         <!-- Warehouse Selection View -->
         <div class="warehouse-selection" id="warehouseSelection">
@@ -451,7 +449,7 @@
             });
         }
         
-        // Get local time for a state (simplified - in a real app you'd use timezone data)
+        // Get local time for a state
         function getLocalTime(stateAbbr) {
             const now = new Date();
             return now.toLocaleTimeString('en-US', { 
