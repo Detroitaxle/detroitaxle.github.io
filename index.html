@@ -3,581 +3,481 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detroit Axle - Warehouse Selection</title>
+    <title>Detroit Axle Delivery Times</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons.min.css">
     <style>
         :root {
-            --dark-bg: #121212;
+            --primary-color: #ff5e14;  /* Reddish orange */
+            --primary-dark: #e04a00;   /* Darker reddish orange */
+            --primary-light: #ff8a4d;  /* Lighter reddish orange */
+            --bg-color: #121212;
             --card-bg: #1e1e1e;
-            --accent: #ff3a2d;
-            --accent-light: #ff5e54;
-            --text: #f0f0f0;
+            --text-color: #e0e0e0;
             --text-secondary: #b0b0b0;
-            --transition-slow: 0.6s;
-            --transition-medium: 0.4s;
-            --transition-fast: 0.2s;
+            --border-color: #333;
+            --success-color: #4caf50;
+            --selected-glow: 0 0 15px rgba(255, 94, 20, 0.7);
         }
-
-        * {
+        
+        body {
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--dark-bg);
-            color: var(--text);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             min-height: 100vh;
-            overflow-x: hidden;
         }
-
-        .logo {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--accent);
-            z-index: 100;
-            transition: opacity var(--transition-medium) ease;
-        }
-
+        
         .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
-            transition: all var(--transition-slow) cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-
-        .title {
-            margin-bottom: 40px;
             text-align: center;
-            opacity: 1;
-            transform: translateY(0);
-            transition: all var(--transition-slow) cubic-bezier(0.165, 0.84, 0.44, 1);
         }
-
-        .title.hidden {
-            opacity: 0;
-            transform: translateY(-20px);
-            height: 0;
-            margin-bottom: 0;
+        
+        .logo-container {
+            margin: 20px 0;
         }
-
-        .options {
+        
+        .logo {
+            height: 80px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+        
+        .option-buttons {
             display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
             justify-content: center;
-            transition: all var(--transition-slow) cubic-bezier(0.165, 0.84, 0.44, 1);
+            gap: 20px;
+            margin-bottom: 20px;
         }
-
-        .option-card {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            padding: 30px;
-            width: 250px;
-            text-align: center;
+        
+        .option-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all var(--transition-medium) cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border: 2px solid transparent;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
-
-        .option-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-            border-color: var(--accent);
+        
+        .option-btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 94, 20, 0.4);
         }
-
-        .option-card:active {
-            transform: translateY(0);
+        
+        .option-btn.active {
+            background-color: var(--primary-dark);
+            box-shadow: var(--selected-glow);
+            transform: translateY(-2px);
+            border: 2px solid white;
         }
-
-        .option-card::after {
+        
+        .option-btn.active::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background-color: var(--accent);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform var(--transition-medium) ease;
-        }
-
-        .option-card:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-
-        .option-card h2 {
-            margin-bottom: 10px;
-            color: var(--accent);
-        }
-
-        .states-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 15px;
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all var(--transition-slow) cubic-bezier(0.165, 0.84, 0.44, 1) 0.3s;
-        }
-
-        .states-grid.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .state-card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all var(--transition-medium) cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-            position: relative;
-            z-index: 1;
-        }
-
-        .state-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .state-card.active {
-            grid-column: span 2;
-            grid-row: span 2;
-            z-index: 10;
-            background-color: #2a2a2a;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transform: scale(1.05);
-            margin: 15px;
-            transition: all var(--transition-slow) cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-
-        .state-card.active .state-info {
-            display: block;
-            animation: fadeIn var(--transition-slow) ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .state-info {
-            display: none;
-            margin-top: 10px;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .delivery-time {
-            color: var(--accent);
-            font-weight: bold;
-            margin-top: 5px;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 2px solid white;
+            border-radius: 5px;
             animation: pulse 2s infinite;
         }
-
+        
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 0.7;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.3;
+                transform: scale(1.02);
+            }
+            100% {
+                opacity: 0.7;
+                transform: scale(1);
+            }
         }
-
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 20px;
+        
+        .state-grid-container {
+            display: none;
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+        }
+        
+        .state {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 5px;
+            padding: 10px;
             cursor: pointer;
-            opacity: 0;
-            pointer-events: none;
-            transition: all var(--transition-medium) ease;
-            z-index: 100;
-        }
-
-        .back-btn.visible {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .back-btn:hover {
-            background-color: var(--accent-light);
-        }
-
-        .weather-info {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(30, 30, 30, 0.95);
-            padding: 20px;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            transform: translateY(100%);
-            transition: all var(--transition-slow) cubic-bezier(0.165, 0.84, 0.44, 1);
-            z-index: 50;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
-            opacity: 0;
+            justify-content: center;
+            height: 60px;
+            position: relative;
+            overflow: hidden;
         }
-
-        .weather-info.visible {
-            transform: translateY(0);
-            opacity: 1;
-            transition: transform var(--transition-slow) cubic-bezier(0.165, 0.84, 0.44, 1), 
-                        opacity var(--transition-medium) ease;
+        
+        .state:hover {
+            background-color: #2a2a2a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary-color);
         }
-
-        .selected-state {
-            font-size: 20px;
+        
+        .state.abbr {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .state.expanded {
+            position: absolute;
+            z-index: 100;
+            height: auto;
+            width: 300px;
+            background-color: var(--card-bg);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            transform: scale(1);
+            animation: expand 0.3s ease forwards;
+            border: 2px solid var(--primary-color);
+        }
+        
+        @keyframes expand {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .state-name {
+            font-size: 24px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: var(--accent);
-            text-align: center;
-            width: 100%;
-            animation: fadeIn var(--transition-slow) ease-out;
+            color: var(--primary-color);
         }
-
-        .weather-content {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            max-width: 800px;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .weather-icon {
-            font-size: 48px;
-            color: var(--accent);
-            animation: weatherIconFadeIn var(--transition-slow) ease-out;
-        }
-
-        @keyframes weatherIconFadeIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .weather-details {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            animation: weatherDetailsFadeIn var(--transition-slow) ease-out;
-        }
-
-        @keyframes weatherDetailsFadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .weather-temp {
-            font-size: 24px;
-        }
-
-        .weather-desc {
+        
+        .state-time {
+            font-size: 16px;
+            margin-bottom: 10px;
             color: var(--text-secondary);
         }
-
-        .weather-extras {
-            display: flex;
-            gap: 15px;
-            margin-top: 5px;
+        
+        .state-delivery {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--success-color);
+            margin-bottom: 5px;
         }
-
-        .weather-extra {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        
+        .state-origin {
             font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 10px;
         }
-
-        @media (max-width: 768px) {
-            .options {
-                flex-direction: column;
-                align-items: center;
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+        
+        .close-btn:hover {
+            color: var(--primary-color);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 99;
+            display: none;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        @media (max-width: 1200px) {
+            .state-grid {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .state-grid {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .state-grid {
+                grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
             }
             
-            .state-card {
-                padding: 10px;
-            }
-
-            .state-card.active {
-                grid-column: span 3;
-                margin: 10px;
-            }
-
-            .weather-content {
+            .option-buttons {
                 flex-direction: column;
-                text-align: center;
                 gap: 10px;
             }
-
-            .weather-extras {
-                justify-content: center;
+            
+            .state.expanded {
+                width: 280px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="logo">Detroit Axle</div>
-    <button class="back-btn">Back to Warehouses</button>
-    
     <div class="container">
-        <div class="title">
-            <h1>Select Warehouse</h1>
-            <p>Choose your shipping origin location</p>
+        <div class="logo-container">
+            <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50">
+                <text x="10" y="35" font-family="Arial" font-size="30" fill="white">DETROIT AXLE</text>
+            </svg>
         </div>
         
-        <div class="options">
-            <div class="option-card" data-warehouse="DAXDT">
-                <h2>Detroit DAXDT</h2>
-                <p>2000 Eight Mile Road, Ferndale, MI</p>
-            </div>
-            <div class="option-card" data-warehouse="DAXJZ">
-                <h2>Texas DAXJZ</h2>
-                <p>El Paso, Texas</p>
-            </div>
+        <h1>Delivery Time Calculator</h1>
+        
+        <div class="option-buttons">
+            <button class="option-btn" id="daxdt">DAXDT (Detroit, MI)</button>
+            <button class="option-btn" id="daxjz">DAXJZ (Texas)</button>
         </div>
         
-        <div class="states-grid" id="statesGrid"></div>
-    </div>
-
-    <div class="weather-info" id="weatherInfo">
-        <div class="selected-state" id="selectedState"></div>
-        <div class="weather-content">
-            <i class="weather-icon" id="weatherIcon"></i>
-            <div class="weather-details">
-                <div class="weather-temp" id="weatherTemp"></div>
-                <div class="weather-desc" id="weatherDesc"></div>
-                <div class="weather-extras">
-                    <div class="weather-extra">
-                        <i class="wi wi-humidity"></i>
-                        <span id="weatherHumidity"></span>
-                    </div>
-                    <div class="weather-extra">
-                        <i class="wi wi-strong-wind"></i>
-                        <span id="weatherWind"></span>
-                    </div>
-                    <div class="weather-extra">
-                        <i class="wi wi-barometer"></i>
-                        <span id="weatherPressure"></span>
-                    </div>
-                </div>
-            </div>
+        <p class="instructions">Select an option above to view delivery times</p>
+        
+        <div class="state-grid-container" id="stateGridContainer">
+            <div class="state-grid" id="stateGrid"></div>
         </div>
     </div>
-
+    
+    <div class="overlay" id="overlay"></div>
+    
     <script>
-        // State data with time zones and abbreviations
-        const stateData = [
-            {name: "Alabama", abbr: "AL", timezone: "America/Chicago"},
-            // ... (rest of the state data remains the same)
-            {name: "Wyoming", abbr: "WY", timezone: "America/Denver"}
-        ];
-
-        // Mock weather data (in a real app, you'd use a weather API)
-        const weatherData = {
-            "AL": {temp: 72, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "65%", wind: "8 mph", pressure: "1012 hPa"},
-            // ... (rest of the weather data remains the same)
-            "WY": {temp: 54, desc: "Partly Cloudy", icon: "wi-day-cloudy", humidity: "50%", wind: "12 mph", pressure: "1011 hPa"}
+        // State data with delivery times from Detroit (DAXDT) and Texas (DAXJZ)
+        const stateData = {
+            "AL": { name: "Alabama", daxdt: "2-3 days", daxjz: "2 days" },
+            "AK": { name: "Alaska", daxdt: "7-10 days", daxjz: "8-10 days" },
+            "AZ": { name: "Arizona", daxdt: "4-5 days", daxjz: "2-3 days" },
+            "AR": { name: "Arkansas", daxdt: "3-4 days", daxjz: "1-2 days" },
+            "CA": { name: "California", daxdt: "5-6 days", daxjz: "3-4 days" },
+            "CO": { name: "Colorado", daxdt: "4-5 days", daxjz: "2-3 days" },
+            "CT": { name: "Connecticut", daxdt: "2-3 days", daxjz: "4-5 days" },
+            "DE": { name: "Delaware", daxdt: "2 days", daxjz: "4-5 days" },
+            "FL": { name: "Florida", daxdt: "3-4 days", daxjz: "3-4 days" },
+            "GA": { name: "Georgia", daxdt: "2-3 days", daxjz: "2-3 days" },
+            "HI": { name: "Hawaii", daxdt: "8-12 days", daxjz: "10-14 days" },
+            "ID": { name: "Idaho", daxdt: "5-6 days", daxjz: "4-5 days" },
+            "IL": { name: "Illinois", daxdt: "1-2 days", daxjz: "2-3 days" },
+            "IN": { name: "Indiana", daxdt: "1 day", daxjz: "2-3 days" },
+            "IA": { name: "Iowa", daxdt: "2-3 days", daxjz: "2-3 days" },
+            "KS": { name: "Kansas", daxdt: "3-4 days", daxjz: "1-2 days" },
+            "KY": { name: "Kentucky", daxdt: "2 days", daxjz: "2 days" },
+            "LA": { name: "Louisiana", daxdt: "3-4 days", daxjz: "1-2 days" },
+            "ME": { name: "Maine", daxdt: "3-4 days", daxjz: "5-6 days" },
+            "MD": { name: "Maryland", daxdt: "2 days", daxjz: "4-5 days" },
+            "MA": { name: "Massachusetts", daxdt: "2-3 days", daxjz: "4-5 days" },
+            "MI": { name: "Michigan", daxdt: "Same day", daxjz: "3-4 days" },
+            "MN": { name: "Minnesota", daxdt: "2-3 days", daxjz: "3-4 days" },
+            "MS": { name: "Mississippi", daxdt: "3-4 days", daxjz: "2 days" },
+            "MO": { name: "Missouri", daxdt: "2-3 days", daxjz: "1-2 days" },
+            "MT": { name: "Montana", daxdt: "5-6 days", daxjz: "4-5 days" },
+            "NE": { name: "Nebraska", daxdt: "3-4 days", daxjz: "2-3 days" },
+            "NV": { name: "Nevada", daxdt: "5-6 days", daxjz: "3-4 days" },
+            "NH": { name: "New Hampshire", daxdt: "3 days", daxjz: "5-6 days" },
+            "NJ": { name: "New Jersey", daxdt: "2 days", daxjz: "4-5 days" },
+            "NM": { name: "New Mexico", daxdt: "4-5 days", daxjz: "2 days" },
+            "NY": { name: "New York", daxdt: "2-3 days", daxjz: "4-5 days" },
+            "NC": { name: "North Carolina", daxdt: "2-3 days", daxjz: "3-4 days" },
+            "ND": { name: "North Dakota", daxdt: "4-5 days", daxjz: "4-5 days" },
+            "OH": { name: "Ohio", daxdt: "1 day", daxjz: "3-4 days" },
+            "OK": { name: "Oklahoma", daxdt: "3-4 days", daxjz: "1-2 days" },
+            "OR": { name: "Oregon", daxdt: "6-7 days", daxjz: "5-6 days" },
+            "PA": { name: "Pennsylvania", daxdt: "2 days", daxjz: "4-5 days" },
+            "RI": { name: "Rhode Island", daxdt: "3 days", daxjz: "5-6 days" },
+            "SC": { name: "South Carolina", daxdt: "3 days", daxjz: "3-4 days" },
+            "SD": { name: "South Dakota", daxdt: "4-5 days", daxjz: "3-4 days" },
+            "TN": { name: "Tennessee", daxdt: "2-3 days", daxjz: "2 days" },
+            "TX": { name: "Texas", daxdt: "3-4 days", daxjz: "Same day" },
+            "UT": { name: "Utah", daxdt: "5-6 days", daxjz: "3-4 days" },
+            "VT": { name: "Vermont", daxdt: "3-4 days", daxjz: "5-6 days" },
+            "VA": { name: "Virginia", daxdt: "2-3 days", daxjz: "4-5 days" },
+            "WA": { name: "Washington", daxdt: "6-7 days", daxjz: "5-6 days" },
+            "WV": { name: "West Virginia", daxdt: "2-3 days", daxjz: "4-5 days" },
+            "WI": { name: "Wisconsin", daxdt: "2 days", daxjz: "3-4 days" },
+            "WY": { name: "Wyoming", daxdt: "5-6 days", daxjz: "4-5 days" }
         };
 
-        // Mock FedEx delivery estimates
-        const fedExEstimatesFromDetroit = {
-            "AL": "2-3 business days",
-            // ... (rest of the FedEx estimates remain the same)
-            "WY": "3-4 business days"
-        };
-
-        const fedExEstimatesFromTexas = {
-            "AL": "2-3 business days",
-            // ... (rest of the FedEx estimates remain the same)
-            "WY": "2-3 business days"
-        };
-
+        // Current selected option
+        let currentOption = null;
+        
         // DOM elements
-        const options = document.querySelector('.options');
-        const title = document.querySelector('.title');
-        const statesGrid = document.getElementById('statesGrid');
-        const backBtn = document.querySelector('.back-btn');
-        const container = document.querySelector('.container');
-        const weatherInfo = document.getElementById('weatherInfo');
-        const selectedStateElement = document.getElementById('selectedState');
-        let selectedWarehouse = null;
-        let selectedState = null;
-
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', () => {
-            // Add event listeners to warehouse options
-            document.querySelectorAll('.option-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    selectedWarehouse = card.getAttribute('data-warehouse');
-                    showStatesGrid(selectedWarehouse);
-                });
-            });
-
-            // Back button event listener
-            backBtn.addEventListener('click', () => {
-                hideStatesGrid();
-            });
-        });
-
-        // Show states grid with animation
-        function showStatesGrid(warehouse) {
-            // Hide title and options with animation
-            title.classList.add('hidden');
-            options.style.opacity = '0';
-            options.style.pointerEvents = 'none';
+        const daxdtBtn = document.getElementById('daxdt');
+        const daxjzBtn = document.getElementById('daxjz');
+        const stateGrid = document.getElementById('stateGrid');
+        const stateGridContainer = document.getElementById('stateGridContainer');
+        const overlay = document.getElementById('overlay');
+        const instructions = document.querySelector('.instructions');
+        
+        // Initialize the state grid
+        function initStateGrid() {
+            stateGrid.innerHTML = '';
             
-            // Show back button
-            backBtn.classList.add('visible');
-            
-            // Populate states grid
-            statesGrid.innerHTML = '';
-            stateData.forEach(state => {
-                const stateCard = document.createElement('div');
-                stateCard.className = 'state-card';
-                stateCard.innerHTML = `
-                    <h3>${state.abbr}</h3>
-                    <div class="state-info">
-                        <div class="local-time">Local Time: ${getLocalTime(state.timezone)}</div>
-                        <div class="delivery-time">Delivery: ${getFedExEstimate(warehouse, state.abbr)}</div>
-                    </div>
-                `;
+            for (const stateAbbr in stateData) {
+                const state = document.createElement('div');
+                state.className = 'state';
+                state.innerHTML = `<div class="abbr">${stateAbbr}</div>`;
+                state.dataset.state = stateAbbr;
                 
-                stateCard.addEventListener('click', () => {
-                    // Remove active class from all cards
-                    document.querySelectorAll('.state-card').forEach(card => {
-                        card.classList.remove('active');
-                    });
-                    
-                    // Add active class to clicked card
-                    stateCard.classList.add('active');
-                    selectedState = state.abbr;
-                    
-                    // Show weather info
-                    showWeatherInfo(state.abbr, state.name);
-                });
+                state.addEventListener('click', () => showStateDetails(stateAbbr));
                 
-                statesGrid.appendChild(stateCard);
+                stateGrid.appendChild(state);
+            }
+        }
+        
+        // Show expanded state details
+        function showStateDetails(stateAbbr) {
+            if (!currentOption) return;
+            
+            const stateInfo = stateData[stateAbbr];
+            const localTime = getLocalTime(stateAbbr);
+            
+            // Create expanded state element
+            const expandedState = document.createElement('div');
+            expandedState.className = 'state expanded';
+            expandedState.innerHTML = `
+                <button class="close-btn">&times;</button>
+                <div class="state-name">${stateInfo.name}</div>
+                <div class="state-time">Local Time: ${localTime}</div>
+                <div class="state-delivery">
+                    Delivery Time: ${currentOption === 'daxdt' ? stateInfo.daxdt : stateInfo.daxjz}
+                </div>
+                <div class="state-origin">
+                    Shipping from: ${currentOption === 'daxdt' ? 'Detroit, MI' : 'Texas'}
+                </div>
+            `;
+            
+            // Position the expanded state near the original state
+            const originalState = document.querySelector(`.state[data-state="${stateAbbr}"]`);
+            const rect = originalState.getBoundingClientRect();
+            expandedState.style.left = `${rect.left + window.scrollX}px`;
+            expandedState.style.top = `${rect.top + window.scrollY}px`;
+            
+            document.body.appendChild(expandedState);
+            overlay.style.display = 'block';
+            
+            // Center the expanded state
+            setTimeout(() => {
+                expandedState.style.left = `${window.innerWidth / 2 - expandedState.offsetWidth / 2}px`;
+                expandedState.style.top = `${window.innerHeight / 2 - expandedState.offsetHeight / 2}px`;
+            }, 10);
+            
+            // Close button event
+            expandedState.querySelector('.close-btn').addEventListener('click', () => {
+                expandedState.remove();
+                overlay.style.display = 'none';
             });
             
-            // Show states grid with delay for smoother transition
-            setTimeout(() => {
-                statesGrid.classList.add('visible');
-            }, 300);
-            
-            // Adjust container padding for grid view
-            container.style.padding = '40px 20px 120px'; // Increased bottom padding for weather info
+            // Close when clicking overlay
+            overlay.addEventListener('click', () => {
+                expandedState.remove();
+                overlay.style.display = 'none';
+            });
         }
-
-        // Hide states grid and show warehouse options
-        function hideStatesGrid() {
-            // Hide states grid
-            statesGrid.classList.remove('visible');
-            
-            // Hide back button
-            backBtn.classList.remove('visible');
-            
-            // Hide weather info
-            weatherInfo.classList.remove('visible');
-            
-            // Show title and options with animation
-            setTimeout(() => {
-                title.classList.remove('hidden');
-                options.style.opacity = '1';
-                options.style.pointerEvents = 'all';
-            }, 300);
-            
-            // Reset container padding
-            container.style.padding = '20px';
-        }
-
-        // Show weather information for selected state
-        function showWeatherInfo(stateAbbr, stateName) {
-            const weather = weatherData[stateAbbr] || {
-                temp: 65,
-                desc: "Partly Cloudy",
-                icon: "wi-day-cloudy",
-                humidity: "65%",
-                wind: "8 mph",
-                pressure: "1013 hPa"
-            };
-            
-            // Update selected state name
-            selectedStateElement.textContent = stateName;
-            
-            // Update weather elements
-            document.getElementById('weatherIcon').className = `weather-icon ${weather.icon}`;
-            document.getElementById('weatherTemp').textContent = `${weather.temp}°F`;
-            document.getElementById('weatherDesc').textContent = weather.desc;
-            document.getElementById('weatherHumidity').textContent = weather.humidity;
-            document.getElementById('weatherWind').textContent = weather.wind;
-            document.getElementById('weatherPressure').textContent = weather.pressure;
-            
-            // Show weather info with animation
-            weatherInfo.classList.add('visible');
-        }
-
-        // Get local time for a timezone
-        function getLocalTime(timezone) {
-            const options = {
-                timeZone: timezone,
-                hour: '2-digit',
+        
+        // Get local time for a state (simplified - in a real app you'd use timezone data)
+        function getLocalTime(stateAbbr) {
+            // This is a simplified version. In a real app, you'd map states to timezones
+            const now = new Date();
+            return now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
                 minute: '2-digit',
-                hour12: true
-            };
-            return new Date().toLocaleTimeString('en-US', options);
+                timeZone: getTimeZoneForState(stateAbbr)
+            });
         }
-
-        // Get FedEx estimate (mock function - in reality you would call the API)
-        function getFedExEstimate(warehouse, stateAbbr) {
-            if (warehouse === 'DAXDT') {
-                return fedExEstimatesFromDetroit[stateAbbr] || '3-5 business days';
-            } else if (warehouse === 'DAXJZ') {
-                return fedExEstimatesFromTexas[stateAbbr] || '3-5 business days';
-            }
-            return '3-5 business days';
+        
+        // Simplified timezone mapping (not comprehensive)
+        function getTimeZoneForState(stateAbbr) {
+            const eastern = ['CT', 'DE', 'FL', 'GA', 'IN', 'KY', 'ME', 'MD', 'MA', 'MI', 'NH', 'NJ', 'NY', 'NC', 'OH', 'PA', 'RI', 'SC', 'TN', 'VT', 'VA', 'WV'];
+            const central = ['AL', 'AR', 'IL', 'IA', 'KS', 'LA', 'MN', 'MS', 'MO', 'NE', 'ND', 'OK', 'SD', 'TX', 'WI'];
+            const mountain = ['AZ', 'CO', 'ID', 'MT', 'NM', 'UT', 'WY'];
+            const pacific = ['CA', 'NV', 'OR', 'WA'];
+            
+            if (eastern.includes(stateAbbr)) return 'America/New_York';
+            if (central.includes(stateAbbr)) return 'America/Chicago';
+            if (mountain.includes(stateAbbr)) return 'America/Denver';
+            if (pacific.includes(stateAbbr)) return 'America/Los_Angeles';
+            if (stateAbbr === 'AK') return 'America/Anchorage';
+            if (stateAbbr === 'HI') return 'Pacific/Honolulu';
+            
+            return 'America/New_York'; // default
         }
-
-        // Update times every minute
-        setInterval(() => {
-            if (selectedWarehouse) {
-                document.querySelectorAll('.state-card').forEach(card => {
-                    const stateAbbr = card.querySelector('h3').textContent;
-                    const state = stateData.find(s => s.abbr === stateAbbr);
-                    if (state) {
-                        const timeElement = card.querySelector('.local-time');
-                        if (timeElement) {
-                            timeElement.textContent = `Local Time: ${getLocalTime(state.timezone)}`;
-                        }
-                    }
-                });
+        
+        // Set active option
+        function setActiveOption(option) {
+            currentOption = option;
+            
+            daxdtBtn.classList.remove('active');
+            daxjzBtn.classList.remove('active');
+            
+            if (option === 'daxdt') {
+                daxdtBtn.classList.add('active');
+            } else if (option === 'daxjz') {
+                daxjzBtn.classList.add('active');
             }
-        }, 60000);
+            
+            // Show the state grid
+            stateGridContainer.style.display = 'block';
+            instructions.style.display = 'none';
+        }
+        
+        // Event listeners
+        daxdtBtn.addEventListener('click', () => setActiveOption('daxdt'));
+        daxjzBtn.addEventListener('click', () => setActiveOption('daxjz'));
+        
+        // Initialize
+        initStateGrid();
     </script>
 </body>
 </html>
